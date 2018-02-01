@@ -16,6 +16,18 @@
  */
 package com.alibaba.dubbo.governance.sync;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.logger.Logger;
@@ -25,19 +37,6 @@ import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.governance.web.common.pulltool.Tool;
 import com.alibaba.dubbo.registry.NotifyListener;
 import com.alibaba.dubbo.registry.RegistryService;
-
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class RegistryServerSync implements InitializingBean, DisposableBean, NotifyListener {
 
@@ -64,9 +63,10 @@ public class RegistryServerSync implements InitializingBean, DisposableBean, Not
 
     // ConcurrentMap<category, ConcurrentMap<servicename, Map<Long, URL>>>
     private final ConcurrentMap<String, ConcurrentMap<String, Map<Long, URL>>> registryCache = new ConcurrentHashMap<String, ConcurrentMap<String, Map<Long, URL>>>();
-    @Autowired
+    
+    //@Autowired
     private RegistryService registryService;
-
+    
     public ConcurrentMap<String, ConcurrentMap<String, Map<Long, URL>>> getRegistryCache() {
         return registryCache;
     }
@@ -155,5 +155,10 @@ public class RegistryServerSync implements InitializingBean, DisposableBean, Not
             services.putAll(categoryEntry.getValue());
         }
     }
+
+	public void setRegistryService(RegistryService registryService) {
+		this.registryService = registryService;
+	}
+    
 }
     

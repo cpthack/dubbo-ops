@@ -19,8 +19,11 @@
 
     <dubbo:application name="dubbo-admin"/>
 
-    <dubbo:registry client="curator" address="${dubbo.registry.address}" check="false" file="false"/>
-
+    <dubbo:registry client="curator" address="${dubbo.registry.address}" group="home,test,dev,cpthack" check="false" file="false"/>
+	
+	<!-- 扩展点 -->
+	<bean id="registryServerConfiguration" class="com.alibaba.dubbo.governance.config.RegistryServerConfiguration"/>
+	
     <dubbo:reference id="registryService" interface="com.alibaba.dubbo.registry.RegistryService" check="false"/>
 
     <bean id="configService" class="com.alibaba.dubbo.governance.service.impl.ConfigServiceImpl"/>
@@ -40,6 +43,9 @@
         <property name="guestPassword" value="${dubbo.admin.guest.password}"/>
     </bean>
 
-    <bean id="governanceCache" class="com.alibaba.dubbo.governance.sync.RegistryServerSync"/>
+    <!-- <bean id="governanceCache" class="com.alibaba.dubbo.governance.sync.RegistryServerSync"/> -->
+   
+    <!-- 扩展点 -->
+    <bean id="governanceCacheExt" class="com.alibaba.dubbo.governance.sync.RegistryServerSyncExt"/>
 
 </beans>
