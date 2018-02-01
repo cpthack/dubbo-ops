@@ -50,12 +50,23 @@ public class AbstractService {
 	}
 	
 	//可以采用aop的方式在调用前替换掉 sync对象的数据
-	@Autowired
+	//@Autowired
 	private RegistryServerSync sync;
 	
 	
 	public ConcurrentMap<String, ConcurrentMap<String, Map<Long, URL>>> getRegistryCache() {
 		return sync.getRegistryCache();
 	}
+
+
+	public void setRegistryService(RegistryService registryService) {
+		this.registryService = registryService;
+	}
+
+
+	public void setSync(RegistryServerSync sync) {
+		this.sync = sync;
+	}
+	
 	
 }

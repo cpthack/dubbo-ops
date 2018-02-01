@@ -47,5 +47,23 @@
    
     <!-- 扩展点 -->
     <bean id="governanceCacheExt" class="com.alibaba.dubbo.governance.sync.RegistryServerSyncExt"/>
-
+	
+	<bean id="registryServerAspectBean" class="com.alibaba.dubbo.governance.aop.RegistryServerAspect" />
+    <!-- 配置一个切面 -->
+    <aop:config>
+        <aop:aspect id="registryServerAspect" ref="registryServerAspectBean">
+            <aop:pointcut id="registryServerPointcut" expression="execution(* com.alibaba.dubbo.governance.service.*.*(..))" />
+            <!-- 配置前置通知 -->
+            <aop:before pointcut-ref="registryServerPointcut" method="beforeAdvice" />
+            <!-- 配置前置通知 -->
+            <aop:after pointcut-ref="registryServerPointcut" method="afterAdvice" />
+            <!-- 配置后置返回通知 -->
+            <aop:after-returning pointcut-ref="registryServerPointcut" method="afterReturnAdvice" returning="result" />
+            <!-- 配置环绕通知 -->
+            <aop:around pointcut-ref="registryServerPointcut" method="aroundAdvice" />
+            <!-- 异常通知 -->
+            <aop:after-throwing pointcut-ref="registryServerPointcut" method="throwingAdvice" throwing="e" />
+        </aop:aspect>
+    </aop:config>
+	
 </beans>
