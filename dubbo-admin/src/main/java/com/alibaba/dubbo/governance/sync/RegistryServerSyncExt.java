@@ -38,7 +38,7 @@ public class RegistryServerSyncExt implements InitializingBean, DisposableBean {
 		Map<String, RegistryServerSync> registryServerSyncMap = registryServerConfiguration.getRegistryserversyncmap();
 		for (String groupName : registryServerSyncMap.keySet()) {
 			registryServerSyncMap.get(groupName).afterPropertiesSet();
-			logger.info("调用RegistryServerSync.afterPropertiesSet().groupName=[{}]", groupName);
+			logger.info("invoke RegistryServerSync.afterPropertiesSet().groupName=[{}]", groupName);
 		}
 	}
 	
@@ -47,7 +47,7 @@ public class RegistryServerSyncExt implements InitializingBean, DisposableBean {
 		Map<String, RegistryServerSync> registryServerSyncMap = registryServerConfiguration.getRegistryserversyncmap();
 		for (String groupName : registryServerSyncMap.keySet()) {
 			registryServerSyncMap.get(groupName).destroy();
-			logger.info("调用RegistryServerSync.destroy().groupName=[{}]", groupName);
+			logger.info("invoke RegistryServerSync.destroy().groupName=[{}]", groupName);
 		}
 	}
 }

@@ -2,8 +2,11 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
        xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-
+       xmlns:aop="http://www.springframework.org/schema/aop" 
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 		http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -19,7 +22,7 @@
 
     <dubbo:application name="dubbo-admin"/>
 
-    <dubbo:registry client="curator" address="${dubbo.registry.address}" group="home,test,dev,cpthack" check="false" file="false"/>
+    <dubbo:registry client="curator" address="${dubbo.registry.address}" group="${dubbo.registry.group}" check="false" file="false"/>
 	
 	<!-- 扩展点 -->
 	<bean id="registryServerConfiguration" class="com.alibaba.dubbo.governance.config.RegistryServerConfiguration"/>
@@ -52,7 +55,7 @@
     <!-- 配置一个切面 -->
     <aop:config>
         <aop:aspect id="registryServerAspect" ref="registryServerAspectBean">
-            <aop:pointcut id="registryServerPointcut" expression="execution(* com.alibaba.dubbo.governance.service.*.*(..))" />
+            <aop:pointcut id="registryServerPointcut" expression="execution(* com.alibaba.dubbo.governance.service.*.*(..)) || execution(* com.alibaba.dubbo.governance.web.home.module.control.*.*(..))" />
             <!-- 配置前置通知 -->
             <aop:before pointcut-ref="registryServerPointcut" method="beforeAdvice" />
             <!-- 配置前置通知 -->

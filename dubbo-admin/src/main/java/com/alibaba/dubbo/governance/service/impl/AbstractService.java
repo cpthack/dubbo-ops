@@ -19,12 +19,9 @@ package com.alibaba.dubbo.governance.service.impl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
-import com.alibaba.dubbo.governance.config.RegistryServerConfiguration;
 import com.alibaba.dubbo.governance.sync.RegistryServerSync;
 import com.alibaba.dubbo.registry.RegistryService;
 
@@ -34,39 +31,31 @@ import com.alibaba.dubbo.registry.RegistryService;
  */
 public class AbstractService {
 	
-	protected static final Logger		logger = LoggerFactory.getLogger(AbstractService.class);
+	protected static final Logger logger = LoggerFactory.getLogger(AbstractService.class);
 	
-	@Autowired
-	private RegistryServerConfiguration	registryServerConfiguration;
-	
-	//可以采用aop的方式在调用前替换掉 registryService对象的数据
+	/**
+	 * 基于aop的方式在调用前替换掉 registryService对象的数据 @link RegistryServerAspect
+	 */
 	// @Autowired
-	protected RegistryService			registryService;
+	protected RegistryService	  registryService;
 	
-	@SuppressWarnings("static-access")
-	public AbstractService() {
-		String groupName = "home";// 从ThreadLocal中获取groupName的值
-		registryService = registryServerConfiguration.getRegistryservicemap().get(groupName);
-	}
-	
-	//可以采用aop的方式在调用前替换掉 sync对象的数据
-	//@Autowired
-	private RegistryServerSync sync;
-	
+	//
+	/**
+	 * 基于aop的方式在调用前替换掉 sync对象的数据 @link RegistryServerAspect
+	 */
+	// @Autowired
+	private RegistryServerSync	  sync;
 	
 	public ConcurrentMap<String, ConcurrentMap<String, Map<Long, URL>>> getRegistryCache() {
 		return sync.getRegistryCache();
 	}
-
-
+	
 	public void setRegistryService(RegistryService registryService) {
 		this.registryService = registryService;
 	}
-
-
+	
 	public void setSync(RegistryServerSync sync) {
 		this.sync = sync;
 	}
-	
 	
 }

@@ -16,43 +16,57 @@
  */
 package com.alibaba.dubbo.governance.web.home.module.control;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.alibaba.citrus.service.requestcontext.parser.CookieParser;
 import com.alibaba.citrus.turbine.Context;
+import com.alibaba.dubbo.governance.config.RegistryServerConfiguration;
 import com.alibaba.dubbo.governance.sync.RegistryServerSync;
 import com.alibaba.dubbo.governance.web.common.pulltool.RootContextPath;
 import com.alibaba.dubbo.governance.web.util.WebConstants;
 import com.alibaba.dubbo.registry.common.domain.User;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 public class Menu {
-
-    @Autowired
-    ServletContext servletcontext;
-    @Autowired
-    RegistryServerSync registryServerSync;
-    @Autowired
-    private HttpServletRequest request;
-
-    public void execute(HttpSession session, Context context, CookieParser parser) {
-
-        User user = (User) session.getAttribute(WebConstants.CURRENT_USER_KEY);
-        if (user != null) context.put("operator", user.getUsername());
-
-        RootContextPath rootContextPath = new RootContextPath(request.getContextPath());
-        context.put("rootContextPath", rootContextPath);
-        if (!context.containsKey("bucLogoutAddress")) {
-            context.put("bucLogoutAddress", rootContextPath.getURI("logout"));
-        }
-        if (!context.containsKey("helpUrl")) {
-            context.put("helpUrl", "http://code.alibabatech.com/wiki/display/dubbo");
-        }
-        context.put(WebConstants.CURRENT_USER_KEY, user);
-        context.put("language", parser.getString("locale"));
-        context.put("registryServerSync", registryServerSync);
-    }
+	
+	@Autowired
+	ServletContext						servletcontext;
+	
+	/**
+	 * 基于aop的方式在调用前替换掉 registryServerSync对象的数据 @link RegistryServerAspect
+	 */
+	// @Autowired
+	RegistryServerSync					registryServerSync;
+	
+	@Autowired
+	private HttpServletRequest			request;
+	
+	public void execute(HttpSession session, Context context, CookieParser parser) {
+		
+		User user = (User) session.getAttribute(WebConstants.CURRENT_USER_KEY);
+		if (user != null)
+			context.put("operator", user.getUsername());
+		
+		RootContextPath rootContextPath = new RootContextPath(request.getContextPath());
+		context.put("rootContextPath", rootContextPath);
+		if (!context.containsKey("bucLogoutAddress")) {
+			context.put("bucLogoutAddress", rootContextPath.getURI("logout"));
+		}
+		if (!context.containsKey("helpUrl")) {
+			context.put("helpUrl", "http://code.alibabatech.com/wiki/display/dubbo");
+		}
+		context.put(WebConstants.CURRENT_USER_KEY, user);
+		context.put("language", parser.getString("locale"));
+		context.put("registryServerSync", registryServerSync);
+		
+		// 设置当前支持的ZK分组列表
+		context.put("zookeeperGroupNameList", RegistryServerConfiguration.getRegistryservicemap().keySet());
+	}
+	
+	public void setRegistryServerSync(RegistryServerSync registryServerSync) {
+		this.registryServerSync = registryServerSync;
+	}
 }

@@ -520,3 +520,14 @@ function switchToRegistry(r) {
     url = "http://" + r + url;
     window.location.href = url;
 }
+
+/**
+ * 扩展点
+ * 切换zk分组信息
+ * @returns
+ */
+function switchZkGroupName(groupName) {
+	console.log("switch zookeeperGroupName to [" + groupName+"]");
+	setCookie("zookeeperGroupName", groupName);
+	window.location.href = "/";
+}

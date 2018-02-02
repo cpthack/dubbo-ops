@@ -15,10 +15,20 @@
  */
 package com.alibaba.dubbo.governance.aop;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.dubbo.governance.config.RegistryServerConfiguration;
 import com.alibaba.dubbo.governance.service.impl.AbstractService;
+import com.alibaba.dubbo.governance.sync.RegistryServerSync;
+import com.alibaba.dubbo.governance.web.home.module.control.Menu;
+import com.alibaba.dubbo.registry.RegistryService;
 
 /**
  * <b>RegistryServerAspect.java</b></br>
@@ -33,45 +43,77 @@ import com.alibaba.dubbo.governance.service.impl.AbstractService;
  */
 public class RegistryServerAspect {
 	
-	public void beforeAdvice() {
-		System.out.println("前置通知执行了");
-	}
+	private final static Logger			logger						 = LoggerFactory.getLogger(RegistryServerAspect.class);
+	private final String				DEFAULT_ZOOKEEPER_GOURP_NAME = "home";
+	@Autowired
+	private RegistryServerConfiguration	registryServerConfiguration;
 	
-	public void afterAdvice() {
-		System.out.println("后置通知执行了");
-	}
+	@Autowired
+	private HttpServletRequest			request;
 	
-	public void afterReturnAdvice(String result) {
-		System.out.println("返回通知执行了" + "运行业务方法返回的结果为" + result);
-	}
-	
-	public String aroundAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-		String result = null;
+	public Object aroundAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+		
+		Object result = null;
 		AbstractService abstractService = null;
 		try {
-			System.out.println("环绕通知开始执行了");
 			
 			if (proceedingJoinPoint.getTarget() instanceof AbstractService) {
-				System.out.println("设置关键对象数据.");
 				abstractService = (AbstractService) proceedingJoinPoint.getTarget();
 				// 设置关键对象
-				// abstractService.setRegistryService(registryService);
-				// abstractService.setSync(sync);
+				abstractService.setRegistryService(getCurrentRegistryService());
+				abstractService.setSync(getCurrentRegistryServerSync());
+				logger.info("设置所有继承了AbstractService类的RegistryService对象和RegistryServerSync对象值.class=[{}]", proceedingJoinPoint.getTarget().getClass());
 			}
-			result = (String) proceedingJoinPoint.proceed();
-			System.out.println("环绕通知执行结束了");
+			
+			if (proceedingJoinPoint.getTarget() instanceof Menu) {
+				Menu menu = (Menu) proceedingJoinPoint.getTarget();
+				menu.setRegistryServerSync(getCurrentRegistryServerSync());
+				logger.info("设置所有继承了Menu类的RegistryServerSync对象值.class=[{}]", proceedingJoinPoint.getTarget().getClass());
+			}
+			
+			result = proceedingJoinPoint.proceed();
 		}
 		catch (Throwable e) {
-			e.printStackTrace();
+			logger.error("RegistryServer对象注入切面拦截器操作失败.", e);
 		}
 		return result;
 	}
 	
+	public void beforeAdvice() {
+	}
+	
+	public void afterAdvice() {
+	}
+	
+	public void afterReturnAdvice(Object result) {
+	}
+	
 	public void throwingAdvice(JoinPoint joinPoint, Exception e) {
-		StringBuffer stringBuffer = new StringBuffer();
-		stringBuffer.append("异常通知执行了.");
-		stringBuffer.append("方法:").append(joinPoint.getSignature().getName()).append("出现了异常.");
-		stringBuffer.append("异常信息为:").append(e.getMessage());
-		System.out.println(stringBuffer.toString());
+	}
+	
+	private String getZookeeperGroupName() {
+		String zookeeperGroupName = DEFAULT_ZOOKEEPER_GOURP_NAME;
+		Cookie[] cookies = request.getCookies();
+		if (cookies == null) {
+			return zookeeperGroupName;
+		}
+		for (Cookie cookie : cookies) {
+			if ("zookeeperGroupName".equals(cookie.getName())) {
+				zookeeperGroupName = cookie.getValue();
+			}
+		}
+		return zookeeperGroupName;
+	}
+	
+	@SuppressWarnings("static-access")
+	private RegistryService getCurrentRegistryService() {
+		String zookeeperGroupName = getZookeeperGroupName();
+		return registryServerConfiguration.getRegistryservicemap().get(zookeeperGroupName);
+	}
+	
+	@SuppressWarnings("static-access")
+	private RegistryServerSync getCurrentRegistryServerSync() {
+		String zookeeperGroupName = getZookeeperGroupName();
+		return registryServerConfiguration.getRegistryserversyncmap().get(zookeeperGroupName);
 	}
 }

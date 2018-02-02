@@ -107,6 +107,17 @@
                     <li><a href="$rootContextPath.getURI("/sysinfo/envs")">$i18n.get("envs")</a></li>#end
             </ul>
         </li>
+        
+        <!--ZK分组扩展点  start-->
+        <li id="unique_tab4" class="sub_nav"><a href="$rootContextPath.getURI("/")" onclick="return false;" style="cursor:default;">切换分组</a>
+            <ul id="zk_group_name">
+               #foreach($zookeeperGroupName in $zookeeperGroupNameList)
+      			 <li><a href="#" onclick="switchZkGroupName('$zookeeperGroupName');">$zookeeperGroupName</a></li>
+     		   #end  
+            </ul>
+        </li>
+        <!--ZK分组扩展点  end-->
+        
     </ul>
     <div class="about">
         <table>
