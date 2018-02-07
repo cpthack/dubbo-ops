@@ -42,6 +42,6 @@
         </beans:property>
         <beans:property name="cacheSeconds" value="3"/>
         <beans:property name="fallbackToSystemLocale" value="false"/>
-        <beans:property name="defaultEncoding" value="GBK"/>
+        <beans:property name="defaultEncoding" value="gb2312"/>
     </beans:bean>
 </beans:beans>
